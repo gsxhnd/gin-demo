@@ -10,13 +10,25 @@ var (
 	version = pflag.BoolP("version", "v", false, "show version info.")
 )
 
+var (
+	_version_   string
+	_branch_    string
+	_commitId_  string
+	_buildTime_ string
+)
+
+// init flag
 func FlagInit() error {
 	pflag.Parse()
 	if *version {
-		fmt.Println("APIServer version ", 1)
+		fmt.Printf("Version: %s, Branch: %s, Build: %s, Build time: %s\n",
+			_version_, _branch_, _commitId_, _buildTime_)
 	}
 
-	fmt.Println(*cfg)
+	// init config
+	if err := ConfInit(*cfg); err != nil {
+		panic(err)
+	}
 
 	return nil
 }
