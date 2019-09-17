@@ -5,24 +5,40 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+
+// @title Swagger API
+// @version 1.0
+// @description This is a  server Petstore server.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /v2
 func main() {
 	// init flag
 	_ = config.FlagInit()
 
-	// Create the Gin engine.
-	//g := gin.New()
+	// init database
+	model.DB.Init()
+	defer model.DB.Close()
 
-	// Routes.
-	//router.Load(g)
+	// run a  gin server without default middleware
+	gin.SetMode(viper.GetString("runMode"))
+	g := gin.New()
 
-	//fmt.Print(viper.GetStringMap("log")["writers"])
-
-	//run a default gin server for test
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	_ = r.Run() // listen and serve on 0.0.0.0:8080
+	// load route and middleware
+	router.Load(
+		g,
+		middleware.RequestLogger(),
+		middleware.Cors(),
+	)
+	
+	// listen and serve on 0.0.0.0:8080
+	_ = r.Run() 
 }
