@@ -1,10 +1,13 @@
 package main
 
 import (
-	"APIServer/config"
+	"GinDemo/config"
+	"GinDemo/middleware"
+	"GinDemo/model"
+	"GinDemo/router"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
-
 
 // @title Swagger API
 // @version 1.0
@@ -38,7 +41,7 @@ func main() {
 		middleware.RequestLogger(),
 		middleware.Cors(),
 	)
-	
+
 	// listen and serve on 0.0.0.0:8080
-	_ = r.Run() 
+	_ = g.Run()
 }

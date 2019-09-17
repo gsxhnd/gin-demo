@@ -18,11 +18,14 @@ clean:
 gotool:
 	gofmt -w .
 # 	go tool vet . |& grep -v vendor;true
+docker:
+    docker build -t gsxhnd/GinDemo:${gitTag}
+
 
 help:
 	@echo "make - compile the source code"
 	@echo "make clean - remove binary file and vim swp files"
 	@echo "make gotool - run go tool 'fmt' and 'vet'"
-	@echo "make ca - generate ca files"
+	@echo "make docker - build docker image"
 
 .PHONY: clean gotool ca help
