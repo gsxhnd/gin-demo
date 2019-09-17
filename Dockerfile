@@ -4,4 +4,3 @@ MAINTAINER gsxhnd <gsxhnd@gmail.com>
 
 WORKDIR /opt/code
 COPY . /opt/code
-RUN make
