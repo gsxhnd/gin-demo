@@ -5,7 +5,7 @@ import (
 	"github.com/swaggo/gin-swagger"
 	"net/http"
 
-	_ "GinDemo/docs"
+	_ "gin-demo/docs"
 	swaggerFiles "github.com/swaggo/files"
 )
 

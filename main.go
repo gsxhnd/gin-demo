@@ -1,10 +1,10 @@
 package main
 
 import (
-	"GinDemo/config"
-	"GinDemo/middleware"
-	"GinDemo/model"
-	"GinDemo/router"
+	"gin-demo/config"
+	"gin-demo/middleware"
+	"gin-demo/model"
+	"gin-demo/router"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )

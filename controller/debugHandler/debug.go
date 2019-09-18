@@ -1,9 +1,9 @@
 package debugHandler
 
 import (
-	"GinDemo/controller"
-	"GinDemo/errno"
-	"GinDemo/logger"
+	"gin-demo/controller"
+	"gin-demo/errno"
+	"gin-demo/logger"
 	"github.com/gin-gonic/gin"
 )
 

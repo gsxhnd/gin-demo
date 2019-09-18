@@ -16,3 +16,15 @@ services:
           - sql
   api.test:
      container_name: api
+     image: gsxhnd/gin-demo
+     volumes:
+       - ./conf:/opt/code/conf
+     ports:
+       - 8080:8080
+     command: "/opt/code/gin-demo"
+     environment:
+       TIME_ZONE: Asia/Shanghai
+     networks:
+       dipole.tech:
+         aliases:
+           - wattime-admin-api.dipole.tech

@@ -1,7 +1,7 @@
 package router
 
 import (
-	"GinDemo/controller/debugHandler"
+	"gin-demo/controller/debugHandler"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"GinDemo/errno"
+	"gin-demo/errno"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
