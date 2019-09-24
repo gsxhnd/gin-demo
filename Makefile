@@ -11,9 +11,11 @@ gitTreeState = $(shell if git status|grep -q 'clean';then echo clean; else echo 
 
 ldflags="-w -X ${versionDir}.gitTag=${gitTag} -X ${versionDir}.buildDate=${buildDate} -X ${versionDir}.gitCommit=${gitCommit} -X ${versionDir}.gitTreeState=${gitTreeState}"
 
+all:export GOOS=linux
+all:export GOARCH=amd64
 all: gotool
 	@go build -v -ldflags ${ldflags} .
-	docker build -t gsxhnd/${binName}:${gitTag} .
+	docker build -t dipole/${binName}:${gitTag} .
 	rm -f ${binName}
 clean:
 	rm -f ${binName}
@@ -21,14 +23,17 @@ clean:
 gotool:
 	gofmt -w .
 # 	go tool vet . |& grep -v vendor;true
-
+swag:
+	swag init
 build:
 	@go build -v -ldflags ${ldflags} .
+
 
 help:
 	@echo "make - compile the source code"
 	@echo "make clean - remove binary file and vim swp files"
+	@echo "make swag - make swag doc"
 	@echo "make gotool - run go tool 'fmt' and 'vet'"
 	@echo "make build - build docker image"
 
-.PHONY: clean gotool ca help
+.PHONY: clean gotool help

@@ -2,18 +2,6 @@ version: '2'
 
 
 services:
-  sql:
-    container_name: sql
-    image: mariadb:10.4.7
-    ports:
-      - 3306:3306
-    environment:
-      TIME_ZONE: Asia/Shanghai
-      MYSQL_ROOT_PASSWORD: 123456
-    networks:
-      dipole.tech:
-        aliases:
-          - sql
   api.test:
      container_name: api
      image: gsxhnd/gin-demo
@@ -24,7 +12,3 @@ services:
      command: "/opt/code/gin-demo"
      environment:
        TIME_ZONE: Asia/Shanghai
-     networks:
-       dipole.tech:
-         aliases:
-           - wattime-admin-api.dipole.tech
