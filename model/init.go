@@ -2,13 +2,16 @@ package model
 
 import (
 	"fmt"
+	"gin-demo/logger"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/spf13/viper"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Database struct {
-	adminDB *gorm.DB
+	AdminDB *gorm.DB
+	MongoDB *mongo.Database
 }
 
 var DB *Database
@@ -49,12 +52,26 @@ func getAdminDB() *gorm.DB {
 	return InitSelfDB()
 }
 
+func getMongoDB() *mongo.Database {
+	// Set client options
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/test")
+
+	// Connect to MongoDB
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		logger.HandlerLogger().Error(err)
+	}
+
+	return client.Database("test")
+}
+
 func (db *Database) Init() {
 	DB = &Database{
-		adminDB: getAdminDB(),
+		AdminDB: getAdminDB(),
+		MongoDB: getMongoDB(),
 	}
 }
 
 func (db *Database) Close() {
-	DB.adminDB.Close()
+	_ = DB.adminDB.Close()
 }
