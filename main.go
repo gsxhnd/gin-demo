@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gin-demo/config"
+	"gin-demo/common"
 	"gin-demo/middleware"
 	"gin-demo/model"
 	"gin-demo/router"
@@ -25,7 +25,7 @@ import (
 // @BasePath /v2
 func main() {
 	// init flag
-	_ = config.FlagInit()
+	_ = common.FlagInit()
 
 	// init database
 	model.DB.Init()
