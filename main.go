@@ -2,11 +2,12 @@ package main
 
 import (
 	"gin-demo/common"
+	"gin-demo/logger"
 	"gin-demo/middleware"
-	"gin-demo/model"
 	"gin-demo/router"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
 // @title Swagger API
@@ -28,8 +29,8 @@ func main() {
 	_ = common.FlagInit()
 
 	// init database
-	model.DB.Init()
-	defer model.DB.Close()
+	//model.DB.Init()
+	//defer model.DB.Close()
 
 	// run a  gin server without default middleware
 	gin.SetMode(viper.GetString("runMode"))
@@ -41,6 +42,9 @@ func main() {
 		middleware.RequestLogger(),
 		middleware.Cors(),
 	)
+	logger.Logger01.Info("1", zap.Int("test", 1))
+	logger.Logger01.Info("2")
+	logger.Logger01.Info("3")
 
 	// listen and serve on 0.0.0.0:8080
 	_ = g.Run()
