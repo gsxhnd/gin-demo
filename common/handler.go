@@ -1,8 +1,8 @@
-package controller
+package common
 
 import (
-	"gin-demo/errno"
 	"github.com/gin-gonic/gin"
+	"github.com/gsxhnd/gin-demo/errno"
 	"net/http"
 )
 

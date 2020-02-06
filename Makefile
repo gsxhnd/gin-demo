@@ -32,7 +32,6 @@ build:
 help:
 	@echo "make - compile the source code"
 	@echo "make clean - remove binary file and vim swp files"
-	@echo "make swag - make swag doc"
 	@echo "make gotool - run go tool 'fmt' and 'vet'"
 	@echo "make build - build docker image"
 

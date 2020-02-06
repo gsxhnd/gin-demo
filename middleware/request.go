@@ -2,56 +2,97 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"io"
+	"os"
 	"time"
 )
 
-var requestLogger = logrus.New()
+var loggerReq *zap.Logger
 
-// RequestLogger print log data when request in
-func RequestLogger() gin.HandlerFunc {
+func ReqZapLogger(filename string) gin.HandlerFunc {
+	proEncoder := zapcore.NewJSONEncoder(zapcore.EncoderConfig{
+		MessageKey:  "msg",
+		LevelKey:    "level",
+		TimeKey:     "ts",
+		CallerKey:   "caller",
+		EncodeLevel: zapcore.CapitalLevelEncoder,
+		EncodeTime: func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+			enc.AppendString(t.UTC().Format("2006-01-02T15:04:05.000000-07:00"))
+		},
+		EncodeCaller: zapcore.ShortCallerEncoder,
+		EncodeDuration: func(d time.Duration, enc zapcore.PrimitiveArrayEncoder) {
+			enc.AppendInt64(int64(d) / 1000000)
+		},
+	})
 
+	debugEncoder := zapcore.NewConsoleEncoder(zapcore.EncoderConfig{
+		MessageKey:  "msg",
+		LevelKey:    "level",
+		TimeKey:     "ts",
+		CallerKey:   "caller",
+		EncodeLevel: zapcore.CapitalColorLevelEncoder,
+		EncodeTime: func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+			enc.AppendString(t.UTC().Format("2006-01-02T15:04:05.000000-07:00"))
+		},
+		EncodeCaller: zapcore.ShortCallerEncoder,
+		EncodeDuration: func(d time.Duration, enc zapcore.PrimitiveArrayEncoder) {
+			enc.AppendInt64(int64(d) / 1000000)
+		},
+	})
+	var core zapcore.Core
 	if gin.Mode() == "debug" {
-		requestLogger.SetFormatter(&logrus.TextFormatter{})
+		core = zapcore.NewTee(
+			zapcore.NewCore(debugEncoder, os.Stdout, zap.InfoLevel),
+			zapcore.NewCore(proEncoder, zapcore.AddSync(getWriter(filename)), zap.InfoLevel),
+		)
 	} else {
-		requestLogger.SetFormatter(&logrus.JSONFormatter{})
+		core = zapcore.NewCore(proEncoder, zapcore.AddSync(getWriter(filename)), zap.InfoLevel)
 	}
 
+	loggerReq = zap.New(core)
 	return func(c *gin.Context) {
-		startTime := time.Now()
-		// 处理请求
+		start := time.Now()
+		// some evil middlewares modify this values
+		path := c.Request.URL.Path
+		query := c.Request.URL.RawQuery
 		c.Next()
 
-		// 结束时间
-		endTime := time.Now()
+		end := time.Now()
+		latency := end.Sub(start)
 
-		// 执行时间
-		// latencyTime / 1000 = ms
-		latencyTime := endTime.Sub(startTime)
-
-		// 请求方式
-		reqMethod := c.Request.Method
-
-		// 请求路由
-		reqUri := c.Request.RequestURI
-
-		// 请求数据
-		//reqData,_ := ioutil.ReadAll(c.Request.Body)
-		//reqBody := string(reqData)
-
-		// 状态码
-		statusCode := c.Writer.Status()
-
-		// 请求IP
-		clientIP := c.ClientIP()
-
-		requestLogger.WithFields(
-			logrus.Fields{
-				"status_code":  statusCode,
-				"latency_time": latencyTime,
-				"client_ip":    clientIP,
-				"req_method":   reqMethod,
-				"req_uri":      reqUri,
-			}).Info()
+		if len(c.Errors) > 0 {
+			// Append error field if this is an erroneous request.
+			for _, e := range c.Errors.Errors() {
+				loggerReq.Error(e)
+			}
+		} else {
+			loggerReq.Info(path,
+				zap.Int("status", c.Writer.Status()),
+				zap.String("method", c.Request.Method),
+				zap.String("path", path),
+				zap.String("query", query),
+				zap.String("ip", c.ClientIP()),
+				zap.String("user_agent", c.Request.UserAgent()),
+				zap.String("start_time", start.UTC().Format("2006-01-02T15:04:05.000000-07:00")),
+				zap.String("end_time", end.UTC().Format("2006-01-02T15:04:05.000000-07:00")),
+				zap.Duration("latency", latency),
+			)
+		}
 	}
+}
+
+func getWriter(filename string) io.Writer {
+	hook, err := rotatelogs.New(
+		"./log/"+filename+"_request.%Y%m%d.log",
+		//rotatelogs.WithLinkName(filename),
+		rotatelogs.WithMaxAge(time.Hour*24),
+		rotatelogs.WithRotationTime(time.Hour*24),
+	)
+	if err != nil {
+		panic(err)
+	}
+	return hook
 }
