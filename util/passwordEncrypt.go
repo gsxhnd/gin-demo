@@ -1,4 +1,4 @@
-package authUtil
+package util
 
 import (
 	"crypto/sha256"
